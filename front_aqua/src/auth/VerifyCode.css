@@ -1,4 +1,4 @@
-.auth-container {
+.verify-code-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -6,7 +6,7 @@
     background-color: #f5f5f5;
   }
   
-  .auth-form {
+  .verify-code-form {
     background: white;
     padding: 20px;
     border-radius: 8px;
@@ -41,9 +41,6 @@
   }
   
   button:hover {
-    background-color: #0056b3;
-  }
-  .secondary-button {
-    margin-top: 10px;
+    background-color: #0069d9;
   }
   
