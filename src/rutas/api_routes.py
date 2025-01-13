@@ -1,13 +1,144 @@
+import os
+import smtplib
 from flask import Blueprint, jsonify, request
 from bson.objectid import ObjectId
+from datetime import datetime, timedelta
+import jwt
+import random
+import string
 from colecciones.mongo_setup import db  # Asegúrate de que la ruta es correcta
 
 api = Blueprint('api', __name__)
+SECRET_KEY = os.environ.get("SECRET_KEY", os.urandom(32))
+reset_codes = {}  # Almacenará temporalmente los códigos de restablecimiento
 
-# Ruta para agregar un documento a la colección "usuarios"
-@api.route('/add', methods=['POST'])
-def add_document():
+# Ruta para registrar un nuevo usuario
+@api.route('/register', methods=['POST'])
+def register_user():
     data = request.json
-    result = db.usuarios.insert_one(data)
+    # Verificar que todos los campos requeridos están presentes
+    if not all(key in data for key in ('nombre', 'correo', 'cargo', 'password', 'confirmPassword')):
+        return jsonify({"success": False, "message": "Faltan campos obligatorios"}), 400
+
+    if data['password'] != data['confirmPassword']:
+        return jsonify({"success": False, "message": "Las contraseñas no coinciden"}), 400
+
+    result = db.usuarios.insert_one({
+        "nombre": data.get('nombre'),
+        "correo": data.get('correo'),
+        "cargo": data.get('cargo'),
+        "password": data.get('password')
+    })
+    return jsonify({"success": True, "inserted_id": str(result.inserted_id)})
+
+# Ruta para iniciar sesión
+@api.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    user = db.usuarios.find_one({"correo": data['correo']})
+    
+    if user and user['password'] == data['password']:
+        # Crear token JWT
+        token = jwt.encode({
+            'user_id': str(user['_id']),
+            'exp': datetime.utcnow() + timedelta(hours=1)
+        }, SECRET_KEY, algorithm='HS256')
+        
+        return jsonify({"success": True, "token": token})
+    else:
+        return jsonify({"success": False, "message": "Correo o contraseña incorrectos"}), 401
+
+# Ruta protegida para obtener información del usuario
+@api.route('/profile', methods=['GET'])
+def profile():
+    token = request.headers.get('Authorization')
+    if not token:
+        return jsonify({"success": False, "message": "Token faltante"}), 403
+    
+    try:
+        data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+        user = db.usuarios.find_one({"_id": ObjectId(data['user_id'])})
+        return jsonify({"success": True, "user": {"nombre": user['nombre'], "correo": user['correo'], "cargo": user['cargo']}})
+    except jwt.ExpiredSignatureError:
+        return jsonify({"success": False, "message": "Token expirado"}), 403
+    except jwt.InvalidTokenError:
+        return jsonify({"success": False, "message": "Token inválido"}), 403
+
+# Rutas de cargos
+@api.route('/cargos', methods=['GET'])
+def get_cargos():
+    cargos = db.cargos.find()
+    cargos_list = [{"id": str(cargo["_id"]), "nombre": cargo["nombre"]} for cargo in cargos]
+    return jsonify(cargos_list)
+
+@api.route('/cargos', methods=['POST'])
+def add_cargo():
+    data = request.json
+    result = db.cargos.insert_one({"nombre": data["nombre"]})
     return jsonify({"inserted_id": str(result.inserted_id)})
+
+
+def enviar_correo(correo, codigo):
+    try:
+        smtp_server = "smtp.example.com"  # Configura el servidor SMTP
+        smtp_port = 587  # Configura el puerto SMTP
+        smtp_user = "your_email@example.com"  # Configura tu correo
+        smtp_password = "your_email_password"  # Configura tu contraseña
+
+        mensaje = f"Subject: Restablecer Contraseña\n\nTu código de restablecimiento es: {codigo}"
+
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_password)
+            server.sendmail(smtp_user, correo, mensaje)
+        return True
+    except Exception as e:
+        print(f"Error al enviar el correo: {e}")
+        return False
+
+
+@api.route('/forgot-password', methods=['POST'])
+def forgot_password():
+    data = request.json
+    email = data.get('correo')
+    user = db.usuarios.find_one({"correo": email})
+    
+    if user:
+        codigo = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+        reset_codes[email] = codigo
+        if enviar_correo(email, codigo):
+            return jsonify({"success": True}), 200
+        else:
+            print("Error al enviar el correo. Verifica las credenciales del servidor SMTP.")
+            return jsonify({"success": False, "message": "Error al enviar el correo"}), 500
+    else:
+        return jsonify({"success": False, "message": "Correo no encontrado"}), 404
+
+
+
+
+@api.route('/verify-code', methods=['POST'])
+def verify_code():
+    data = request.json
+    email = data.get('correo')
+    code = data.get('code')
+    
+    if email in reset_codes and reset_codes[email] == code:
+        del reset_codes[email]  # Código verificado, eliminar para seguridad
+        return jsonify({"success": True}), 200
+    else:
+        return jsonify({"success": False, "message": "Código incorrecto"}), 400
+
+@api.route('/reset-password', methods=['POST'])
+def reset_password():
+    data = request.json
+    email = data.get('correo')
+    new_password = data.get('newPassword')
+    user = db.usuarios.find_one({"correo": email})
+    
+    if user:
+        db.usuarios.update_one({"correo": email}, {"$set": {"password": new_password}})
+        return jsonify({"success": True}), 200
+    else:
+        return jsonify({"success": False, "message": "Error al restablecer la contraseña"}), 400
 
