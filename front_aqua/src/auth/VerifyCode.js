@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './VerifyCode.css';
-import background from '../assets/background.jpg';
+import background from '../assets/backgroundR.jpg';
 
 const VerifyCode = () => {
   const [code, setCode] = useState('');

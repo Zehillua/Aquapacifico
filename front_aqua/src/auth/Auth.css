@@ -1,49 +1,68 @@
 .auth-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #f5f5f5;
-  }
-  
-  .auth-form {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-  
-  .form-group input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-  
-  button {
-    width: 100%;
-    padding: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  button:hover {
-    background-color: #0056b3;
-  }
-  .secondary-button {
-    margin-top: 10px;
-  }
-  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background-color: #f5f5f5;
+  background-image: url('../assets/background.jpg'); /* Usa la ruta correcta a tu imagen */
+  background-size: cover;  /* Asegura que la imagen cubra todo el contenedor sin estar comprimida ni estirada */
+  background-position: center;  /* Centra la imagen */
+  background-repeat: no-repeat;  /* Evita que la imagen se repita */
+}
+
+
+.auth-form {
+  background: rgba(97, 181, 211, 0.877);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 400px; /* Ajusta el ancho del cuadro según tus necesidades */
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
+.secondary-button {
+  margin-top: 10px;
+}
+
+/* Ajustar tamaño de fuente de manera relativa */
+:root {
+  font-size: 100%; /* Tamaño de fuente predeterminado en porcentaje */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  background-color: rgba(20, 215, 206, 0.771); /* Fondo similar al del cuadro */
+  color: rgb(24, 24, 24); 
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 15px; /* Espaciado inferior */
+}

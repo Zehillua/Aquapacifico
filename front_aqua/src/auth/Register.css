@@ -9,7 +9,7 @@
 }
 
 .register-form {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(5, 240, 236, 0.589);
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -41,7 +41,7 @@
 .button {
   width: 100%;
   padding: 10px;
-  background-color: #007bff; /* Color azul para los botones */
+  background-color: rgba(12, 231, 125, 0.929); /*rgba(33, 220, 234, 0.707);*/; /* Color azul para los botones */
   color: white; /* Texto en blanco */
   border: none;
   border-radius: 12px; /* Bordes redondeados */
@@ -54,10 +54,18 @@
 }
 
 .button:hover {
-  background-color: #0056b3; /* Color azul oscuro al pasar el ratón */
+  background-color: #00fb54; /* Color azul oscuro al pasar el ratón */
 }
 
 .button:active {
   background-color: white; /* Fondo blanco al hacer clic */
-  color: #007bff; /* Texto azul al hacer clic */
+  color: #00ff4c; /* Texto azul al hacer clic */
+}
+
+h1, h2, h3, h4, h5, h6 {
+  background-color:  #00ff4cc3; /* Fondo similar al del cuadro */
+  color: rgb(24, 24, 24); 
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 15px; /* Espaciado inferior */
 }

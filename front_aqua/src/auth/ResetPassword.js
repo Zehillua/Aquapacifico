@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ResetPassword.css';
-import background from '../assets/background.jpg';
+import background from '../assets/backgroundR.jpg';
 
 const ResetPassword = () => {
   const [email, setEmail] = useState('');
