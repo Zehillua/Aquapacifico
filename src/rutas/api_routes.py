@@ -1,15 +1,25 @@
 import os
-import smtplib
 from flask import Blueprint, jsonify, request
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+from email.message import EmailMessage
+import smtplib
+import ssl
 import jwt
 import random
 import string
 from colecciones.mongo_setup import db  # Asegúrate de que la ruta es correcta
 
 api = Blueprint('api', __name__)
+
+# Cargar variables de entorno desde el archivo .env
+load_dotenv()
 SECRET_KEY = os.environ.get("SECRET_KEY", os.urandom(32))
+smtp_user = os.getenv('SMTP_USER')
+smtp_password = os.getenv('PASSWORD')
+smtp_server = os.getenv('SMTP_SERVER')
+smtp_port = int(os.getenv('SMTP_PORT'))
 reset_codes = {}  # Almacenará temporalmente los códigos de restablecimiento
 
 # Ruta para registrar un nuevo usuario
@@ -77,57 +87,65 @@ def add_cargo():
     result = db.cargos.insert_one({"nombre": data["nombre"]})
     return jsonify({"inserted_id": str(result.inserted_id)})
 
-
 def enviar_correo(correo, codigo):
     try:
-        smtp_server = "smtp.example.com"  # Configura el servidor SMTP
-        smtp_port = 587  # Configura el puerto SMTP
-        smtp_user = "your_email@example.com"  # Configura tu correo
-        smtp_password = "your_email_password"  # Configura tu contraseña
+        mensaje = EmailMessage()
+        mensaje['From'] = smtp_user
+        mensaje['To'] = correo
+        mensaje['Subject'] = "Restablecer Contraseña"
+        mensaje.set_content(f"Tu código de restablecimiento es: {codigo}")
 
-        mensaje = f"Subject: Restablecer Contraseña\n\nTu código de restablecimiento es: {codigo}"
+        context = ssl.create_default_context()
 
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
+        with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:
             server.login(smtp_user, smtp_password)
-            server.sendmail(smtp_user, correo, mensaje)
+            server.send_message(mensaje)
+        
+        print("Correo enviado exitosamente")
         return True
     except Exception as e:
         print(f"Error al enviar el correo: {e}")
         return False
 
 
+
 @api.route('/forgot-password', methods=['POST'])
 def forgot_password():
     data = request.json
     email = data.get('correo')
-    user = db.usuarios.find_one({"correo": email})
+    confirm_email = data.get('confirmCorreo')
     
+    if email != confirm_email:  
+        return jsonify({"success": False, "message": "Los correos electrónicos no coinciden"}), 400
+
+    user = db.usuarios.find_one({"correo": email})
     if user:
         codigo = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
         reset_codes[email] = codigo
         if enviar_correo(email, codigo):
+            print("Correo enviado exitosamente")
             return jsonify({"success": True}), 200
         else:
-            print("Error al enviar el correo. Verifica las credenciales del servidor SMTP.")
+            print("Error al enviar el correo")
             return jsonify({"success": False, "message": "Error al enviar el correo"}), 500
     else:
+        print("Correo no encontrado")
         return jsonify({"success": False, "message": "Correo no encontrado"}), 404
-
-
-
 
 @api.route('/verify-code', methods=['POST'])
 def verify_code():
     data = request.json
-    email = data.get('correo')
     code = data.get('code')
     
-    if email in reset_codes and reset_codes[email] == code:
-        del reset_codes[email]  # Código verificado, eliminar para seguridad
-        return jsonify({"success": True}), 200
+    # Buscar el correo asociado al código dado
+    email = next((k for k, v in reset_codes.items() if v == code), None)
+
+    if email:
+        del reset_codes[email]  # Eliminar el código verificado para seguridad
+        return jsonify({"success": True, "email": email}), 200  # Devolver el correo verificado
     else:
         return jsonify({"success": False, "message": "Código incorrecto"}), 400
+
 
 @api.route('/reset-password', methods=['POST'])
 def reset_password():
@@ -141,4 +159,5 @@ def reset_password():
         return jsonify({"success": True}), 200
     else:
         return jsonify({"success": False, "message": "Error al restablecer la contraseña"}), 400
+
 
