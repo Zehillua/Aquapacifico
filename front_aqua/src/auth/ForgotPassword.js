@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './ForgotPassword.css';
-import background from '../assets/background.jpg'; // Importar la imagen desde `src/assets`
+import './Auth.css';
+import background from '../assets/background.jpg';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [confirmEmail, setConfirmEmail] = useState('');
-  const navigate = useNavigate(); // Usa `useNavigate`
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -15,31 +15,33 @@ const ForgotPassword = () => {
       return;
     }
 
+    console.log("Correo electrónico enviado:", email); // Imprimir el correo electrónico enviado
+
     const response = await fetch('http://localhost:5000/forgot-password', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ correo: email })
+      body: JSON.stringify({ correo: email, confirmCorreo: confirmEmail })
     });
+
+    console.log("Response recibido:", response); // Imprimir la respuesta del servidor
+
     const data = await response.json();
+    console.log("Datos recibidos:", data); // Imprimir los datos recibidos
+
     if (data.success) {
       alert('Código enviado a tu correo electrónico');
-      navigate('/verify-code', { state: { email: email } }); // Redirigir a la ventana para ingresar el código
-    } else if (data.message === 'Correo no encontrado') {
-      alert('El correo no se encuentra en el sistema');
+      navigate('/verify-code');
     } else {
-      alert('Error al enviar el código');
+      alert(data.message || 'Error al enviar el código');
     }
   };
 
   return (
-    <div
-      className="forgot-password-container"
-      style={{ backgroundImage: `url(${background})` }}
-    >
-      <form className="forgot-password-form" onSubmit={handleSubmit}>
-        <h2>Olvidé mi Contraseña</h2>
+    <div className="auth-container" style={{ backgroundImage: `url(${background})` }}>
+      <form className="auth-form" onSubmit={handleSubmit}>
+        <h2>Esto es para reestablecer su contraseña</h2>
         <div className="form-group">
-          <label>Correo Electrónico:</label>
+          <label>Ingrese su correo electrónico registrado:</label>
           <input
             type="email"
             value={email}
@@ -48,7 +50,7 @@ const ForgotPassword = () => {
           />
         </div>
         <div className="form-group">
-          <label>Confirmar Correo Electrónico:</label>
+          <label>Reescriba el correo electrónico para confirmar:</label>
           <input
             type="email"
             value={confirmEmail}
@@ -56,7 +58,7 @@ const ForgotPassword = () => {
             required
           />
         </div>
-        <button type="submit">Enviar Código</button>
+        <button type="submit"><span>Enviar Código a su correo</span></button>
         <button type="button" onClick={() => navigate('/login')} className="secondary-button"><span>Volver a Inicio de Sesión</span></button>
       </form>
     </div>
@@ -64,6 +66,3 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
-
-
-

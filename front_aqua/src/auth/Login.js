@@ -33,7 +33,7 @@ const Login = () => {
       <form className="auth-form" onSubmit={handleSubmit}>
         <h2>Inicio de Sesión</h2>
         <div className="form-group">
-          <label>Email:</label>
+          <label>Ingrese su correo:</label>
           <input
             type="email"
             value={email}
@@ -42,7 +42,7 @@ const Login = () => {
           />
         </div>
         <div className="form-group">
-          <label>Contraseña:</label>
+          <label>Ingrese su contraseña:</label>
           <input
             type="password"
             value={password}
@@ -52,7 +52,7 @@ const Login = () => {
         </div>
         <button type="submit"><span>Iniciar Sesión</span></button>
         <button type="button" onClick={() => navigate('/register')} className="secondary-button"><span>Registrarse</span></button>
-        <button type="button" onClick={() => navigate('/forgot-password')} className="secondary-button"><span>Olvidé mi Contraseña</span></button>
+        <button type="button" onClick={() => navigate('/forgot-password')} className="secondary-button"><span>Presione aquí si se le olvido la contraseña</span></button>
       </form>
     </div>
   );

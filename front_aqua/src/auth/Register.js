@@ -51,7 +51,7 @@ const Register = () => {
       <form className="register-form" onSubmit={handleSubmit}>
         <h2>Registro</h2>
         <div className="form-group">
-          <label>Nombre:</label>
+          <label>Ingrese su nombre:</label>
           <input
             type="text"
             value={name}
@@ -60,7 +60,7 @@ const Register = () => {
           />
         </div>
         <div className="form-group">
-          <label>Email:</label>
+          <label>Ingrese su correo:</label>
           <input
             type="email"
             value={email}
@@ -69,7 +69,7 @@ const Register = () => {
           />
         </div>
         <div className="form-group">
-          <label>Contraseña:</label>
+          <label>Ingrese su contraseña:</label>
           <input
             type="password"
             value={password}
@@ -78,7 +78,7 @@ const Register = () => {
           />
         </div>
         <div className="form-group">
-          <label>Confirmar Contraseña:</label>
+          <label>Reescriba su contraseña:</label>
           <input
             type="password"
             value={confirmPassword}
@@ -87,7 +87,7 @@ const Register = () => {
           />
         </div>
         <div className="form-group">
-          <label>Cargo:</label>
+          <label>Seleccione su cargo correspondiente:</label>
           <select value={cargo} onChange={(e) => setCargo(e.target.value)} required>
             <option value="">Selecciona tu cargo</option>
             {cargos.map((cargo) => (
