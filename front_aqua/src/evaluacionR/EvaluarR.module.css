@@ -1,0 +1,75 @@
+.evaluarRContainer {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 900px; /* Aumentamos el ancho máximo */
+  margin: auto;
+}
+
+.registroDetails {
+  flex: 1;
+  padding: 10px;
+  margin-right: 20px;
+}
+
+.registroDetails h2 {
+  color: #333;
+}
+
+.registroDetails p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.evaluarRForm {
+  flex: 2; /* Hacemos que el formulario ocupe más espacio */
+  padding: 10px;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.formGroup {
+  margin-bottom: 15px;
+}
+
+.formGroup label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.formGroup input,
+.formGroup textarea {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+textarea {
+  resize: vertical;
+  height: 150px; /* Aumentamos el alto del cuadro de texto */
+}
+
+.volverButton {
+  padding: 10px 20px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 20px; /* Añadimos un margen superior para separar el botón del formulario */
+}
+
+.volverButton:hover {
+  background-color: #5a6268;
+}

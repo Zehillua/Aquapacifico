@@ -8,6 +8,7 @@ import ResetPassword from './auth/ResetPassword';
 import Menu from './menu/Menu';
 import Registro from './registros/Registros';
 import Evaluaciones from './evaluacionR/Evaluaciones';
+import Rentabilidad from './evaluacionR/EvaluarR';
 import ProtectedRoute from './components/ProtectedRoute';
 import FontSizeControl from './components/FontSizeControl';
 
@@ -26,6 +27,7 @@ const App = () => {
             <Route path="/menu" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
             <Route path="/registro" element={<ProtectedRoute><Registro /></ProtectedRoute>} />
             <Route path="/evaluaciones" element={<ProtectedRoute><Evaluaciones /></ProtectedRoute>} />
+            <Route path="/evaluarR/:registroId" element={<ProtectedRoute><Rentabilidad /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/login" />} /> {/* Redirigir cualquier ruta desconocida a /login */}
           </Routes>
         </Router>

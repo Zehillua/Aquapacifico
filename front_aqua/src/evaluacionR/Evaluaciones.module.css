@@ -10,13 +10,13 @@
 
 .logoContainer {
   position: absolute; /* Posiciona el logo de manera absoluta */
-  right: 150px; /* Alinea el logo a la derecha */
-  top: 50%; /* Coloca el logo en el centro verticalmente */
+  right: 1120px; /* Alinea el logo a la derecha */
+  top: 90px; /* Coloca el logo en el centro verticalmente */
   transform: translateY(-50%); /* Ajusta para centrar el logo verticalmente */
 }
 
 .logo {
-  width: 450px;
+  width: 370px;
 }
 
 h1 {

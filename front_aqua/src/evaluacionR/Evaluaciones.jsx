@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styles from './Evaluaciones.module.css'; // Importar los estilos modulados
+import styles from './Evaluaciones.module.css';
 import logo from '../assets/LogoAquaPacifico.jpg'; // Asegúrate de que la ruta sea correcta
 
 const Evaluaciones = () => {
@@ -35,15 +35,11 @@ const Evaluaciones = () => {
   }, []);
 
   const handleEvaluarRenta = (registroId) => {
-    navigate(`/evaluacionR/${registroId}`);
-  };
-
-  const handleVolver = () => {
-    navigate('/menu');
+    navigate(`/evaluarR/${registroId}`);
   };
 
   return (
-    <div className={styles.evaluacionRContainer}>
+    <div className={styles.evaluacionesContainer}>
       <div className={styles.logoContainer}>
         <img src={logo} alt="Logo AquaPacifico" className={styles.logo} />
       </div>
@@ -72,7 +68,7 @@ const Evaluaciones = () => {
           ))}
         </div>
       )}
-      <button className={styles.volverButton} onClick={handleVolver}>Volver</button>
+      <button className={styles.volverButton} onClick={() => navigate('/menu')}>Volver</button>
     </div>
   );
 };
