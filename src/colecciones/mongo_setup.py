@@ -12,3 +12,7 @@ def create_collections():
         db.create_collection("usuarios")
     if "cargos" not in db.list_collection_names():
         db.create_collection("cargos")
+    if "especies" not in db.list_collection_names():
+        db.create_collection("especies")
+    if "registros" not in db.list_collection_names():
+        db.create_collection("registros")   

@@ -4,75 +4,28 @@ from bson.objectid import ObjectId
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
 from email.message import EmailMessage
+from auth.auth import verificar_token
 import smtplib
 import ssl
 import jwt
 import random
 import string
-from colecciones.mongo_setup import db  # Asegúrate de que la ruta es correcta
+from werkzeug.security import generate_password_hash, check_password_hash
+from colecciones.mongo_setup import db
 
 api = Blueprint('api', __name__)
 
-# Cargar variables de entorno desde el archivo .env
+# Cargar variables de entorno
 load_dotenv()
-SECRET_KEY = os.environ.get("SECRET_KEY", os.urandom(32))
+SECRET_KEY = os.getenv("SECRET_KEY", os.urandom(32))
 smtp_user = os.getenv('SMTP_USER')
 smtp_password = os.getenv('PASSWORD')
 smtp_server = os.getenv('SMTP_SERVER')
 smtp_port = int(os.getenv('SMTP_PORT'))
-reset_codes = {}  # Almacenará temporalmente los códigos de restablecimiento
 
-# Ruta para registrar un nuevo usuario
-@api.route('/register', methods=['POST'])
-def register_user():
-    data = request.json
-    # Verificar que todos los campos requeridos están presentes
-    if not all(key in data for key in ('nombre', 'correo', 'cargo', 'password', 'confirmPassword')):
-        return jsonify({"success": False, "message": "Faltan campos obligatorios"}), 400
+reset_codes = {}  # Esto debería almacenarse en la BD para persistencia
 
-    if data['password'] != data['confirmPassword']:
-        return jsonify({"success": False, "message": "Las contraseñas no coinciden"}), 400
 
-    result = db.usuarios.insert_one({
-        "nombre": data.get('nombre'),
-        "correo": data.get('correo'),
-        "cargo": data.get('cargo'),
-        "password": data.get('password')
-    })
-    return jsonify({"success": True, "inserted_id": str(result.inserted_id)})
-
-# Ruta para iniciar sesión
-@api.route('/login', methods=['POST'])
-def login():
-    data = request.json
-    user = db.usuarios.find_one({"correo": data['correo']})
-    
-    if user and user['password'] == data['password']:
-        # Crear token JWT
-        token = jwt.encode({
-            'user_id': str(user['_id']),
-            'exp': datetime.utcnow() + timedelta(hours=1)
-        }, SECRET_KEY, algorithm='HS256')
-        
-        return jsonify({"success": True, "token": token})
-    else:
-        return jsonify({"success": False, "message": "Correo o contraseña incorrectos"}), 401
-
-# Ruta protegida para obtener información del usuario
-@api.route('/profile', methods=['GET'])
-def profile():
-    token = request.headers.get('Authorization')
-    if not token:
-        return jsonify({"success": False, "message": "Token faltante"}), 403
-    
-    try:
-        data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-        user = db.usuarios.find_one({"_id": ObjectId(data['user_id'])})
-        return jsonify({"success": True, "user": {"nombre": user['nombre'], "correo": user['correo'], "cargo": user['cargo']}})
-    except jwt.ExpiredSignatureError:
-        return jsonify({"success": False, "message": "Token expirado"}), 403
-    except jwt.InvalidTokenError:
-        return jsonify({"success": False, "message": "Token inválido"}), 403
 
 # Rutas de cargos
 @api.route('/cargos', methods=['GET'])
@@ -81,12 +34,107 @@ def get_cargos():
     cargos_list = [{"id": str(cargo["_id"]), "nombre": cargo["nombre"]} for cargo in cargos]
     return jsonify(cargos_list)
 
-@api.route('/cargos', methods=['POST'])
-def add_cargo():
+# Registrar usuario
+@api.route('/register', methods=['POST'])
+def register_user():
     data = request.json
-    result = db.cargos.insert_one({"nombre": data["nombre"]})
+    if not all(key in data for key in ('nombre', 'correo', 'cargo', 'password', 'confirmPassword')):
+        return jsonify({"success": False, "message": "Faltan campos obligatorios"}), 400
+
+    if data['password'] != data['confirmPassword']:
+        return jsonify({"success": False, "message": "Las contraseñas no coinciden"}), 400
+
+    # Hashear la contraseña antes de guardarla
+    hashed_password = generate_password_hash(data['password'])
+
+    result = db.usuarios.insert_one({
+        "nombre": data['nombre'],
+        "correo": data['correo'],
+        "cargo": data['cargo'],
+        "password": hashed_password
+    })
+    return jsonify({"success": True, "inserted_id": str(result.inserted_id)})
+
+# Login
+@api.route('/login', methods=['POST'])
+def login():
+    try:
+        data = request.json
+        user = db.usuarios.find_one({"correo": data['correo']})
+
+        if user and check_password_hash(user['password'], data['password']):
+            token = jwt.encode({
+                'username': str(user['nombre']),
+                'exp': datetime.utcnow() + timedelta(hours=1)
+            }, SECRET_KEY, algorithm='HS256')
+            
+            return jsonify({"success": True, "token": token})
+        else:
+            return jsonify({"success": False, "message": "Correo o contraseña incorrectos"}), 401
+    except Exception:
+        return jsonify({"success": False, "message": "Error en el servidor"}), 500
+
+# Obtener perfil (Usando `verificar_token`)
+@api.route('/profile', methods=['GET'])
+@verificar_token
+def profile():
+    usuario_actual = getattr(request, "usuario_actual", None)
+    if not usuario_actual:
+        return jsonify({"success": False, "message": "Usuario no autenticado"}), 401
+
+    user = db.usuarios.find_one({"correo": usuario_actual})
+    if user:
+        return jsonify({
+            "success": True,
+            "user": {
+                "nombre": user['nombre'],
+                "correo": user['correo'],
+                "cargo": user['cargo']
+            }
+        })
+    else:
+        return jsonify({"success": False, "message": "Usuario no encontrado"}), 404
+
+
+
+# Rutas de cargos
+@api.route('/especies', methods=['GET'])
+def get_especies():
+    especies = db.especies.find()
+    especies_list = [{"id": str(especie["_id"]), "nombre": especie["nombre"]} for especie in especies]
+    return jsonify(especies_list)
+
+
+# Registrar especie
+@api.route('/especies', methods=['POST'])
+@verificar_token
+def add_especie():
+    data = request.json
+    result = db.especies.insert_one({"nombre": data["nombre"]})
     return jsonify({"inserted_id": str(result.inserted_id)})
 
+# Registro de producción
+@api.route('/registros', methods=['POST'])
+@verificar_token
+def add_registro():
+    data = request.json
+    usuario_actual = getattr(request, "usuario_actual", None)
+    print(usuario_actual)
+    if not usuario_actual:
+        return jsonify({"error": "Usuario no autenticado"}), 401
+
+    result = db.registros.insert_one({
+        "fechaA": datetime.utcnow(),
+        "cantidadPr": data["cantidadPr"],
+        "retornoEs": data["retornoEs"],
+        "especie": data["especie"],
+        "costoEst": data["costoEst"],
+        "usuario": usuario_actual
+    })
+
+    return jsonify({"inserted_id": str(result.inserted_id)})
+
+# Función para enviar correo
 def enviar_correo(correo, codigo):
     try:
         mensaje = EmailMessage()
@@ -101,57 +149,49 @@ def enviar_correo(correo, codigo):
             server.login(smtp_user, smtp_password)
             server.send_message(mensaje)
         
-        print("Correo enviado exitosamente")
         return True
     except Exception as e:
         print(f"Error al enviar el correo: {e}")
         return False
 
-
-
+# Olvido de contraseña
 @api.route('/forgot-password', methods=['POST'])
 def forgot_password():
     data = request.json
     email = data.get('correo')
-    confirm_email = data.get('confirmCorreo')
-    
-    if email != confirm_email:  
-        return jsonify({"success": False, "message": "Los correos electrónicos no coinciden"}), 400
 
     user = db.usuarios.find_one({"correo": email})
     if user:
         codigo = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
         reset_codes[email] = codigo
         if enviar_correo(email, codigo):
-            print("Correo enviado exitosamente")
             return jsonify({"success": True}), 200
         else:
-            print("Error al enviar el correo")
             return jsonify({"success": False, "message": "Error al enviar el correo"}), 500
     else:
-        print("Correo no encontrado")
         return jsonify({"success": False, "message": "Correo no encontrado"}), 404
 
+# Verificación de código
 @api.route('/verify-code', methods=['POST'])
 def verify_code():
     data = request.json
     code = data.get('code')
-    
-    # Buscar el correo asociado al código dado
+
     email = next((k for k, v in reset_codes.items() if v == code), None)
 
     if email:
-        del reset_codes[email]  # Eliminar el código verificado para seguridad
-        return jsonify({"success": True, "email": email}), 200  # Devolver el correo verificado
+        del reset_codes[email]
+        return jsonify({"success": True, "email": email}), 200
     else:
         return jsonify({"success": False, "message": "Código incorrecto"}), 400
 
-
+# Restablecer contraseña
 @api.route('/reset-password', methods=['POST'])
 def reset_password():
     data = request.json
     email = data.get('correo')
-    new_password = data.get('newPassword')
+    new_password = generate_password_hash(data.get('newPassword'))
+
     user = db.usuarios.find_one({"correo": email})
     
     if user:
@@ -159,5 +199,15 @@ def reset_password():
         return jsonify({"success": True}), 200
     else:
         return jsonify({"success": False, "message": "Error al restablecer la contraseña"}), 400
-
+    
+    
+@api.route('/evaluaciones', methods=['GET'])
+def get_evaluaciones():
+    try:
+        registros = list(db.registros.find())
+        for registro in registros:
+            registro["_id"] = str(registro["_id"])
+        return jsonify({"success": True, "registros": registros}), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
 
