@@ -1,4 +1,5 @@
 import os
+import random
 from flask import Blueprint, jsonify, request
 from bson.objectid import ObjectId
 from datetime import datetime, timedelta
@@ -211,3 +212,53 @@ def get_evaluaciones():
     except Exception as e:
         return jsonify({"success": False, "message": str(e)}), 500
 
+@api.route('/rentabilidad/<registro_id>', methods=['GET'])
+@verificar_token
+def get_rentabilidad(registro_id):
+    try:        
+        registro = db.registros.find_one({"_id": ObjectId(registro_id)})
+        if not registro:
+            print("Registro no encontrado")
+            return jsonify({"success": False, "message": "Registro no encontrado"}), 404
+
+        registro["_id"] = str(registro["_id"])
+
+        # Convertir los valores a números
+        cantidad_pr = int(registro.get("cantidadPr", "0"))
+        costo_est = float(registro.get("costoEst", "0"))
+        retorno_es = float(registro.get("retornoEs", "0"))
+
+        # Generar datos adicionales de manera aleatoria
+        cantidad_real = random.randint(1, 100)
+        costo_real = random.uniform(10.0, 1000.0)
+        retorno_real = random.uniform(10.0, 1000.0)
+        utilidad_real = costo_real - retorno_real
+        diferencia_cantidades = cantidad_real - cantidad_pr
+        diferencia_costos = costo_real - costo_est
+        diferencia_retornos = retorno_real - retorno_es
+
+        # Generar comentario
+        comentario = (
+            f"La cantidad a producir propuesta tiene un error del {(diferencia_cantidades * 100) / cantidad_real:.2f}%, "
+            f"con un error en el costo sugerido del {(diferencia_costos * 100) / costo_real:.2f}%, "
+            f"y con un error en el retorno sugerido del {(diferencia_retornos * 100) / retorno_real:.2f}%."
+        )
+
+        # Crear la respuesta con los datos del registro y los datos adicionales
+        respuesta = {
+            "success": True,
+            "registro": registro,
+            "datos_adicionales": {
+                "cantidad_real": cantidad_real,
+                "costo_real": costo_real,
+                "retorno_real": retorno_real,
+                "utilidad_real": utilidad_real,
+                "diferencia_cantidades": diferencia_cantidades,
+                "diferencia_costos": diferencia_costos,
+                "diferencia_retornos": diferencia_retornos,
+                "comentario": comentario
+            }
+        }
+        return jsonify(respuesta), 200
+    except Exception as e:
+        return jsonify({"success": False, "message": str(e)}), 500
