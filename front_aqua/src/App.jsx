@@ -6,13 +6,14 @@ import ForgotPassword from './auth/ForgotPassword';
 import VerifyCode from './auth/VerifyCode';
 import ResetPassword from './auth/ResetPassword';
 import Menu from './menu/Menu';
+import Registro from './registros/Registros';
+import Evaluaciones from './evaluacionR/Evaluaciones';
 import ProtectedRoute from './components/ProtectedRoute';
 import FontSizeControl from './components/FontSizeControl';
-import backgroundImage from './assets/background.jpg';  // Asegúrate de ajustar la ruta según tu estructura
 
 const App = () => {
   return (
-    <div className="App" style={{ backgroundImage: `url(${backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center', height: '100vh' }}>
+    <div className="App">
       <header className="App-header">
         <FontSizeControl />
         <Router>
@@ -23,6 +24,8 @@ const App = () => {
             <Route path="/verify-code" element={<VerifyCode />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/menu" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
+            <Route path="/registro" element={<ProtectedRoute><Registro /></ProtectedRoute>} />
+            <Route path="/evaluaciones" element={<ProtectedRoute><Evaluaciones /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/login" />} /> {/* Redirigir cualquier ruta desconocida a /login */}
           </Routes>
         </Router>

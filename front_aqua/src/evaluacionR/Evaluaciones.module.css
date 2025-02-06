@@ -1,0 +1,112 @@
+.evaluacionesContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+  width: 100%;
+  position: relative; /* Permite posicionamiento absoluto del logo */
+}
+
+.logoContainer {
+  position: absolute; /* Posiciona el logo de manera absoluta */
+  right: 150px; /* Alinea el logo a la derecha */
+  top: 50%; /* Coloca el logo en el centro verticalmente */
+  transform: translateY(-50%); /* Ajusta para centrar el logo verticalmente */
+}
+
+.logo {
+  width: 450px;
+}
+
+h1 {
+  color: #333;
+  margin-bottom: 20px;
+  width: 100%;
+  text-align: center; /* Asegúrate de centrar el título */
+}
+
+.registrosList {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+}
+
+.registroItem {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin-bottom: 10px;
+  padding: 15px;
+  transition: transform 0.3s;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  align-self: center; /* Centra los items individualmente */
+}
+
+.registroItem:hover {
+  transform: scale(1.05);
+}
+
+.registroDetails {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex-grow: 1;
+}
+
+.registroDetails p {
+  margin: 5px 0;
+  color: #555;
+}
+
+.registroImage {
+  flex-shrink: 0;
+  width: 100px;
+  height: 100px;
+  margin-right: 10px;
+}
+
+.registroImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 5px;
+}
+
+.evaluarRentaButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-left: 10px;
+}
+
+.evaluarRentaButton:hover {
+  background-color: #0056b3;
+}
+
+.volverButton {
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 15px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 20px;
+}
+
+.volverButton:hover {
+  background-color: #5a6268;
+}

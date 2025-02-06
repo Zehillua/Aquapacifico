@@ -1,0 +1,150 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+    padding: 0;
+    overflow: auto;
+  
+  }
+  
+  #root {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  
+  .registrosContainer {
+    padding: 3vh;
+    background-color: white;
+    height: 100%;
+    overflow: auto; /* Asegura la barra desplazadora cuando sea necesario */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 0px;
+    box-sizing: border-box;
+    animation: fadeIn 0.5s ease-in-out;
+    width: 100vw;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .logoContainer {
+    position: fixed;
+    top: 10vh;
+    left: 2vw;
+  }
+  
+  .registrosLogo {
+    width: 10vw; /* Ajustar el tamaño del logo */
+    height: auto;
+  }
+  
+  .registrosHeader {
+    margin-bottom: 2vh;
+    padding: 1vh 1vw;
+    background-color: rgba(24, 24, 24, 0.05);
+    border-radius: 5px;
+    text-align: center;
+    width: 50%;
+  }
+  
+  .formContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2vh;
+    background-color: rgba(24, 24, 24, 0.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    width: 80vw;
+    max-width: 800px;
+    min-height: 60vh;
+    margin-bottom: 4vh; /* Separar del botón de cerrar sesión */
+  }
+  
+  .form {
+    flex: 1;
+    margin-right: 2vw;
+  }
+  
+  .formGroup {
+    margin-bottom: 1.5vh;
+  }
+  
+  .formGroup label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 1vh;
+  }
+  
+  .formGroup input, .formGroup select {
+    width: 100%;
+    padding: 1vh;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .submitButton {
+    padding: 1vh 2vw;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  
+  .submitButton:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+  }
+  
+  .imageContainer {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+  }
+  
+  .speciesImage {
+    max-width: 100%;
+    max-height: 30vh;
+    transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  
+  .speciesImage[src] {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  .registrosCloseButton {
+    padding: 1vh 2vw;
+    border: none;
+    border-radius: 5px;
+    background-color: #dc3545;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    align-self: center; /* Asegura que el botón esté visible */
+  }
+  
+  .registrosCloseButton:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+  }
+  
